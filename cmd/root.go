@@ -33,10 +33,11 @@ var Version string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "dcron",
-	Short: "A cron job expression parser",
-	Long:  `A parser which parses a cron string and expands each field to show the times at which it will run`,
-	Args:  cobra.ExactArgs(1),
+	Use:     "dcron",
+	Short:   "A cron job expression parser",
+	Long:    `A parser which parses a cron string and expands each field to show the times at which it will run`,
+	Args:    cobra.ExactArgs(1),
+	Version: Version,
 	Run: func(cmd *cobra.Command, args []string) {
 		run(args[0])
 	},
@@ -52,11 +53,13 @@ func Execute() {
 }
 
 func run(data string) {
-	p := parser.New(data)
-	r, err := p.Parse()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	if data != "" {
+		p := parser.New(data)
+		r, err := p.Parse()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		r.Print(os.Stdout)
 	}
-	r.Print(os.Stdout)
 }
