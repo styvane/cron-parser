@@ -11,6 +11,6 @@ test:
 	gotest -v -race -count=1 ./...
 
 install:
-	go install -ldflags "-X 'github.com/styvane/dcron/parser/cmd.Version=${VERSION}'"
+	go install -ldflags "-X 'github.com/styvane/dcron/cmd.Version=${VERSION}'"
 	@echo "Done!"
 
