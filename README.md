@@ -9,7 +9,9 @@ A parser which parses a cron string and expands each field to show the times at 
 
 ### Installation
 
-```$ go get -u  github.com/styvane/dcron
+```
+$ go get -u  github.com/styvane/dcron
+
 ```
 
 Alternatively, you can install from source
@@ -21,7 +23,12 @@ $ make install
 ```
 ### Usage
 
-	The parser required one argument: the string to parse.
+The parser required one argument: the string to parse.
+
+```
+$ dcron <string-to-parse>
+
+```
 
 #### Options
 
