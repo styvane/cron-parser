@@ -17,6 +17,13 @@ func TestParse(t *testing.T) {
 			&Result{"0 15 30 45", "0", "1 15", "1 2 3 4", "1 2 3", "/usr/bin/sh"},
 			false,
 		},
+
+		{
+			"valid string with extra range",
+			`*/15 0 1,15,2-3 1-4 1-3 /usr/bin/sh`,
+			&Result{"0 15 30 45", "0", "1 2 3 15", "1 2 3 4", "1 2 3", "/usr/bin/sh"},
+			false,
+		},
 	}
 
 	for _, tt := range tests {

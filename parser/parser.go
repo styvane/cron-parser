@@ -5,6 +5,7 @@ package parser
 import (
 	"fmt"
 	"io"
+	"sort"
 	"strconv"
 	"strings"
 	"text/tabwriter"
@@ -70,38 +71,30 @@ func newField(s string, index int) *field {
 }
 
 // parse value parse an allowed field value
-func (f *field) parseValue() (value string, err error) {
-	var b strings.Builder
+func parseValue(input string, index, step int) (value []int, err error) {
 	switch {
-	case f.value == asterisk:
-		for d := fieldAllowedValue[f.index].start; d <= fieldAllowedValue[f.index].end; d += f.step {
-			_, err = b.WriteString(fmt.Sprintf("%d ", d))
-			if err != nil {
-				return
-			}
+	case input == asterisk:
+		for d := fieldAllowedValue[index].start; d <= fieldAllowedValue[index].end; d += step {
+			value = append(value, d)
 		}
-	case strings.Contains(f.value, listSeparator):
-		_, err = b.WriteString(strings.ReplaceAll(f.value, listSeparator, " "))
-		if err != nil {
-			return
+	case strings.Contains(input, listSeparator):
+		values := strings.Split(input, listSeparator)
+		for _, v := range values {
+			val, _ := parseValue(v, index, step)
+			value = append(value, val...)
 		}
-	case strings.Contains(f.value, rangeSeparator):
-		ss := strings.Split(f.value, rangeSeparator)
+	case strings.Contains(input, rangeSeparator):
+		ss := strings.Split(input, rangeSeparator)
 		s, _ := strconv.Atoi(ss[0])
 		e, _ := strconv.Atoi(ss[1])
 		for s <= e {
-			_, err = b.WriteString(fmt.Sprintf("%d ", s))
-			if err != nil {
-				return
-			}
-			s = s + f.step
+			value = append(value, s)
+			s = s + step
 		}
 	default:
-		b.WriteString(f.value)
+		v, _ := strconv.Atoi(input)
+		value = append(value, v)
 	}
-
-	value = strings.TrimSpace(b.String())
-
 	return
 }
 
@@ -110,13 +103,25 @@ func (f *field) parseValue() (value string, err error) {
 func (p *Parser) Parse() (result *Result, err error) {
 	fields := strings.Fields(p.data)
 	n := len(fields) - 1
-	result = &Result{cmd: fields[n]}
+	result = &Result{cmd: strings.Join(fields[5:], " ")}
 	for i, v := range fields[:n] {
 		f := newField(v, i)
-		str, err := f.parseValue()
+		values, err := parseValue(f.value, f.index, f.step)
+		sort.Ints(values)
+		var b strings.Builder
+		for _, d := range values {
+			_, err = b.WriteString(fmt.Sprintf("%d ", d))
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		str := strings.TrimSpace(b.String())
+
 		if err != nil {
 			return nil, err
 		}
+
 		switch {
 		case f.index == 0:
 			result.minute = str
