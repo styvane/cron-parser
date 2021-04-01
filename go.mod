@@ -1,4 +1,4 @@
-module github.com/styvane/dcron
+module github.com/styvane/kron
 
 go 1.15
 
